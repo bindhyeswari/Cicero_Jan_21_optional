@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script>
+
+        var str = 'Content-Type: application/json; charset=utf-8\n' +
+        'X-RateLimit-Limit: 10\n' +
+        'X-RateLimit-Remaining: 8\n' +
+        'X-RateLimit-Reset: 1421880169\n' +
+        'Cache-Control: no-cache\n' +
+        'Link: <https://api.github.com/search/repositories?q=nodejs&page=2>; rel="next", <https://api.github.com/search/repositories?q=nodejs&page=34>; rel="last"\n';
+
+        console.log(str);
+
+
+
+        function extractLinkObject(headers) {
+            var linkObject = {};
+            var headers = str.trim().split('\n');
+            var linkHeader = headers[headers.length - 1];
+            linkHeader = linkHeader.slice(5);
+            var links = linkHeader.split(',');
+            for (var i = 0, len = links.length; i < len; i++) {
+                var data = links[i].split('"');
+                linkObject[data[1]] = data[0].trim().slice(1, -7);
+            }
+            return linkObject;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            var div = document.querySelector('.navigation');
+            div.innerHTML = '';
+            var link = extractLinkObject(str); // extract link details
+            for (var prop in link) {
+                console.log(prop);
+                var anchor = document.createElement('a');
+                anchor.href = link[prop];
+                anchor.innerHTML = prop;
+                div.appendChild(anchor);
+            }
+        });
+
+
+
+    </script>
+</head>
+<body>
+<style>
+    a {
+        display: inline-block;
+        padding: 1em;
+    }
+</style>
+    <div class="navigation">
+
+    </div>
+</body>
+</html>

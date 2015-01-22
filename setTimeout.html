@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('GET', 'https://api.github.com/search/repositories?q=nodejs');
+            xhr.setRequestHeader('Accept', 'application/json');
+            xhr.addEventListener('readystatechange', handler);
+            xhr.send();
+            console.log('Made the ajax call ... ');
+
+            function handler () {
+                if (xhr.status === 200 && xhr.readyState === 4) {
+                    console.log('The server has responded: ' + xhr.getAllResponseHeaders());
+                    var str_header = xhr.getAllResponseHeaders();
+                    console.log(str_header);
+
+                    var results = document.querySelector('#results');
+                    var str_response = xhr.responseText; // access the returned data as string
+                    var obj = JSON.parse(xhr.responseText); // convert it to an object
+
+                    // display the full names of all the repositories on the page
+                    for (var i = 0, len = obj.items.length; i < len; i++) {
+                        // access each item in the object via the items property
+                        //console.log(obj.items[i].full_name);
+                        var div = document.createElement('div');
+                        div.innerHTML = obj.items[i].full_name;
+                        results.appendChild(div);
+                    }
+
+                    // create the next last and previous hyperlinks
+                    var div = document.querySelector('.navigation');
+                    div.innerHTML = '';
+                    var link = extractLinkObject(str_header); // extract link details
+                    console.log(link);
+                    for (var prop in link) {
+                        console.log(prop);
+                        var anchor = document.createElement('a');
+                        anchor.href = link[prop];
+                        anchor.innerHTML = prop;
+                        div.appendChild(anchor);
+                    }
+
+                }
+            }
+
+            function extractLinkObject(headers) {
+                var linkObject = {};
+                var headers = str.trim().split('\n');
+                var linkHeader = headers[headers.length - 1];
+                linkHeader = linkHeader.slice(5);
+                var links = linkHeader.split(',');
+                for (var i = 0, len = links.length; i < len; i++) {
+                    var data = links[i].split('"');
+                    linkObject[data[1]] = data[0].trim().slice(1, -7);
+                }
+                return linkObject;
+            }
+        });
+
+    </script>
+</head>
+<body>
+    <div class="navigation"></div>
+    <div id="results"></div>
+</body>
+</html>
